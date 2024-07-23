@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MPU6050 2D Visualization</title>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+  <div id="plot"></div>
+  <script>
+    let staticPoint = {x: 0, y: 0};
+
+    function plotData(acceleration) {
+      const trace = {
+        x: [staticPoint.x, acceleration.x],
+        y: [staticPoint.y, acceleration.y],
+        mode: 'lines+markers',
+        type: 'scatter',
+        marker: { size: 10, color: 'blue' },
+        line: { width: 2, color: 'blue' }
+      };
+
+      const layout = {
+        xaxis: {title: 'X', range: [-10, 10]},
+        yaxis: {title: 'Y', range: [-10, 10]},
+        margin: {
+          l: 50, r: 50, b: 50, t: 50
+        }
+      };
+
+      Plotly.newPlot('plot', [trace], layout);
+    }
+
+    async function fetchData() {
+      try {
+        const response = await fetch('http://192.168.1.9/');
+        const data = await response.json();
+
+        const acceleration = {
+          x: data.acceleration.x,
+          y: data.acceleration.y
+        };
+
+        plotData(acceleration);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    }
+
+    setInterval(fetchData, 500);
+  </script>
+</body>
+</html>
